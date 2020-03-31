@@ -1,0 +1,606 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <link type="text/css" rel="stylesheet" href="stylesheet.css" />
+    <title>Development of a Displacement Mapping Application using WebGL</title>
+
+    <script type="text/javascript" src="javaScript/gl-matrix.js"></script>
+
+    <!--Uncomment the line below to be able to debug the code or simulate WebGL Context Lost with webgl-debug.js-->
+    <!--<script type="text/javascript" src="javaScript/webgl-debug.js"></script>-->
+
+    <script type="text/javascript" src="javaScript/WebGLcontext-shadersNew.js"></script>
+    <script type="text/javascript" src="javaScript/WebGLbuffersNew.js"></script>
+    <script type="text/javascript" src="javaScript/WebGLsurfacesNew.js"></script>
+    <script type="text/javascript" src="javaScript/WebGLdrawingFunctionNew.js"></script>
+    <script type="text/javascript" src="javaScript/WebGLeventHandlersNew.js"></script>
+    <script type="text/javascript" src="javaScript/WebGLchangingFunctionsNew.js"></script>
+    <script type="text/javascript" src="javaScript/GUIhelpingFunctionsNew.js"></script>
+    <script type="text/javascript" src="javaScript/WebGLObjectNew.js"></script>
+    <script type="text/javascript" src="javaScript/lena.js"></script>
+
+    <meta charset="utf-8">
+    <script id="shader-vs" type="x-shader/x-vertex">
+
+        attribute vec3 aVertexPosition;
+        attribute vec3 aVertexNormal;
+        attribute float aVertexHValue;
+        attribute vec4 aVertexColour;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+        uniform mat3 uNMatrix;
+        uniform float uDispConstant;
+        uniform float uDispMax;
+        uniform int uMonochColour;
+        uniform int uFlag;
+       
+
+        varying vec4 vColour;
+        varying vec3 vPositionEye;
+        varying vec3 vNormalEye;
+
+        void main() {
+            gl_PointSize = 1.0;
+
+            //Calculate newPosition applying the displacement (if there is no displacement, uDispConstant will be 0)
+            //Transform to clip coordinates and save in the built-in variable gl_Position
+            vec3 newPosition = aVertexPosition + uDispConstant * aVertexNormal * (1.0 - aVertexHValue);
+            gl_Position = uPMatrix * uMVMatrix * vec4(newPosition, 1.0);
+
+            //Transform the vertex position and normal to eye coordinates and send to the fragment shader
+            vec4 vertexPositionEye4 = uMVMatrix * vec4(newPosition, 1.0);
+            vPositionEye = vertexPositionEye4.xyz / vertexPositionEye4.w;
+            vNormalEye = normalize(uNMatrix * aVertexNormal);
+
+            //Calculate the colour of the vertex, according to the displacement if required
+            //Send the result to the fragment shader
+            if (uFlag == 1) vColour = vec4(0.0,0.0,0.0,1);
+            else {
+                if (uMonochColour == 1) vColour = aVertexColour;
+                else if ( abs(uDispConstant) < 0.3 ) vColour = aVertexColour + abs(uDispConstant)/0.3*(1.0 - aVertexHValue)/uDispMax * vec4(0.25,0.45,0.35,0.0);
+                else vColour = aVertexColour + (1.0 - aVertexHValue)/uDispMax * vec4(0.25,0.45,0.35,0.0);
+            }
+        }
+    </script>
+
+
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+        varying vec4 vColour;
+        varying vec3 vPositionEye;
+        varying vec3 vNormalEye;
+
+        uniform int uMonochColour2;
+        uniform int uFlag2;
+        uniform int bFlag;
+        const vec3 uDiffuseLightColor = vec3(0.7, 0.7, 0.7);
+        const float constantAtt = 1.0;
+        const float linearAtt = 0.1;
+        const float quadraticAtt = 0.09;
+
+        struct LightInfo {
+            vec4 Position; // Light position in eye coords.
+            vec3 La;       // Ambient light intensity
+            vec3 Ld;       // Diffuse light intensity
+            vec3 Ls;       // Specular light intensity
+        };
+
+        uniform LightInfo Lights[4];
+
+        struct MaterialInfo {
+            vec3 Ka;            // Ambient reflectivity
+            vec3 Kd;            // Diffuse reflectivity
+            vec3 Ks;            // Specular reflectivity
+            float Shininess;    // Specular shininess factor
+        };
+
+        uniform MaterialInfo Material[4];
+
+        void phongModel(LightInfo linfo, MaterialInfo minfo, vec3 pos, vec3 norm, out vec3 ambAndDiff )
+        {
+            vec3 s;
+            if (linfo.Position.w == 0.0)
+                s = normalize(vec3(linfo.Position));
+            else
+                s = normalize(vec3(linfo.Position) - pos);
+            vec3 v = normalize(-pos.xyz);
+            vec3 r = reflect( -s, norm );
+            vec3 ambient = linfo.La * minfo.Ka;
+            float sDotN = max( dot(s,norm), 0.0 );
+            vec3 diffuse = linfo.Ld * minfo.Kd * sDotN;
+            vec3 spec = vec3(0.0);
+
+            if( sDotN > 0.0 )
+                spec = linfo.Ls * minfo.Ks *
+                    pow( max( dot(r,v), 0.0 ), minfo.Shininess );
+
+            ambAndDiff =  diffuse + spec + ambient;
+        }
+
+        void main() {
+            float distance;
+            float att;
+            vec3 LightPosition;
+
+            vec3 ambAndDiff1, ambAndDiff2, ambAndDiff3, ambAndDiff4;
+
+            phongModel(Lights[0], Material[0], vPositionEye, vNormalEye, ambAndDiff1);
+            phongModel(Lights[1], Material[1], vPositionEye, vNormalEye, ambAndDiff2);
+            phongModel(Lights[2], Material[2], vPositionEye, vNormalEye, ambAndDiff3);
+            phongModel(Lights[3], Material[3], vPositionEye, vNormalEye, ambAndDiff4);
+
+            vec3 ambAndDiff =   ambAndDiff1 + ambAndDiff2 + ambAndDiff3 + ambAndDiff4;
+            vec4 color = vec4( ambAndDiff, 1.0);
+
+            if (uMonochColour2==1) {
+                LightPosition = vec3(0.0, 0.0, -4.0);
+
+                // Calculate attenuation
+                distance = length(vec3(LightPosition - vPositionEye));
+                att = 1.0/(constantAtt+linearAtt * distance + quadraticAtt * distance * distance);
+
+                // Modulate colour with diffuse attenuation and write as final colour
+                if (bFlag == 1) gl_FragColor = mix(color,vec4(vNormalEye,1.0),0.4);
+                else gl_FragColor = vColour;
+            } else {
+                LightPosition = vec3(0.0, 0.0, 0.0);
+
+                // Calculate attenuation
+                distance = length(vec3(LightPosition - vPositionEye));
+                att = 1.0/(constantAtt+linearAtt * distance + quadraticAtt * distance * distance);
+
+                //Normalize the normal vector after the linear interpolation carried out in the WebGL pipeline
+                vec3 NormalEye = normalize(vNormalEye);
+
+                // Calculate the vector (l) to the light source
+                vec3 vectorToLightSource = normalize(LightPosition - vPositionEye);
+
+                // Calculate n dot l for diffuse lighting
+                float diffuseLightWeighting = max(dot(NormalEye, vectorToLightSource), 0.0);
+
+                // Calculate diffuse reflection
+                vec3 diffuseReflection = uDiffuseLightColor * diffuseLightWeighting;
+
+                // Modulate colour and write as final colour
+                if (bFlag == 1) gl_FragColor = mix(color,vec4(vNormalEye,1.0),0.4);
+                else gl_FragColor = vColour;
+            }
+        }
+    </script>
+    <script type="text/javascript">
+
+        var canvasWgl;
+        var gl;  //Standard naming convention for the WebGLRenderingContext object
+        var canvasUI;
+        var contextUI;
+        var canvasUC;
+        var contextUC;
+        var canvasAux;
+        var contextAux;
+
+
+        ////It is not necessary to declare it here but it improves the understanding of the application's variables
+
+        //Object to store the arrays that will fill the different WebGL buffers and its size.
+        //It will also have the matrices and vector needed for the transformations
+        var wGL = {
+            VertexPositionBuffer: {}, VPBufferItemSize: 0, VPBufferNumberOfItems: 0,
+            VertexNormalBuffer: {}, VNBufferItemSize: 0, VNBufferNumberOfItems: 0,
+            VertexColourBuffer: {}, VCBufferItemSize: 0, VCBufferNumberOfItems: 0,
+            VertexHValuesBuffer: {}, VHBufferItemSize: 0, VHBufferNumberOfItems: 0,
+            VertexIndexBuffer: {}, VIBufferItemSize: 0, VIBufferNumberOfItems: 0,
+            VertexTextBuffer: {}, VTBufferItemSize: 0, VTBufferNumberOfItems: 0,
+            VertexHValues: [], VertexColourValues: [],
+            modelViewMatrix: mat4.create(), auxmodelViewMatrix: mat4.create(), projectionMatrix: mat4.create(),
+            translationMatrix: mat4.create(), modelViewMatrixStack: [], translationVector: vec3.clone([0.0, 0.0, -5.0]),
+            normalMatrix: mat3.create()
+        };
+
+
+        //Object to track the state of the WebGL model, knowing the characteristics that are currently being used
+        var State = {
+            N: 256, figure: 0, n1SE: "", n2SE: "", rendering: 0, colour: 2, image: 0, valuesUserImageOK: 0,
+            displac: 0.8, dispMax: 1.0, YNdisplac: 1,
+            proyection: 100.0, numberIndex: 0
+        };
+
+        //Object to control the WebGL event handlers to rotate or zoom the model
+        var Move = { YNpressed: 0, posX: 0, posY: 0, distance: 0 };
+
+        //Object to monitor the different images used for displacement and the texture mapping effect
+        var Images = { UserDefault: {}, UserImage: {}, userImageOK: 1, UserColour: {}, userColourOK: 1, Aux: {}, loadingImages: [] };
+
+        //Object that will store the current surface being used for the model
+        var SurfaceObj = {};
+
+        //Object that will store the direction of the GUI lateral boxes to be able to change their visibility during the
+        //use of the application
+        var PageBoxes = {};
+
+        ////Configure the state of the input tags (state or default value)
+        function setInputTags() {
+            //check boxes
+            document.getElementById("ps").checked = false;
+            document.getElementById("se").checked = false;
+            document.getElementById("ci").checked = false;
+            document.getElementById("cc").checked = false;
+            document.getElementById("leftVis").checked = true;
+            document.getElementById("rightVis").checked = true;
+
+            //text inputs
+            document.getElementById("Nsize").value = State.N;
+            document.getElementById("n1").value = "";
+            document.getElementById("n2").value = "";
+
+            //text inputs
+            document.getElementById("Nsize").value = State.N;
+
+            //select tags
+            document.getElementById("rendering").selectedIndex = 0;
+        }
+
+
+        
+
+        ///Function to charge the lists with javaScript having simplified the HTML body
+        function setLists() { }// to do  }
+
+        ////// First JavaScript function of the application //////
+        /// Sets up some html elements (lists and input tags), defines the context for the canvas elements, attaches
+        /// events to the WebGL canvas and configures WebGL: shaders, buffers, properties, attributes and uniforms.
+        /// Finally, draws the WebGL model.
+
+        function startup() {
+            setInputTags();
+
+            PageBoxes.PSbox = document.getElementById("Psurfaces");
+            PageBoxes.SEbox = document.getElementById("superellipsoids");
+            PageBoxes.UIbox = document.getElementById("userImageBox");
+            PageBoxes.UCbox = document.getElementById("userColourBox");
+            //WebGL canvas and context. Events.
+            canvasWgl = document.getElementById("WebGLCanvas");
+
+
+            //Uncomment the line below to be able to simulate Context Lost. It can be simulated with letter L if
+            //the handleKeyDown(event) event handler allows it in WebGLeventHandlers.js
+            //A warning will appear on the console of the browser if the debugging with webgl-debug.js
+            //is activated (activate with lines below).
+
+            //canvasWgl = WebGLDebugUtils.makeLostContextSimulatingCanvas(canvasWgl);
+
+            canvasWgl.addEventListener('mousedown', handleMouseDown, false);
+            canvasWgl.addEventListener('mouseup', handleMouseUp, false);
+            canvasWgl.addEventListener('mousemove', handleMouseMove, false);
+            canvasWgl.addEventListener('mousewheel', handleMouseWheel, false);
+            canvasWgl.addEventListener('DOMMouseScroll', handleMouseWheel, false);
+
+            canvasWgl.addEventListener('touchstart', handleTouchStart, false);
+            canvasWgl.addEventListener('touchend', handleTouchEnd, false);
+            canvasWgl.addEventListener('touchmove', handleTouchMove, false);
+
+            canvasWgl.addEventListener('webglcontextlost', handleContextLost, false);
+            canvasWgl.addEventListener('webglcontextrestored', handleContextRestored, false);
+
+            document.addEventListener('keydown', handleKeyDown, false);
+            document.body.addEventListener("contextmenu", function (evt) { evt.preventDefault(); return false; });
+
+            gl = createGLContext(canvasWgl);
+            //Uncomment the following line and comment the previous one to debug the code with webgl-debug.js
+            //gl = WebGLDebugUtils.makeDebugContext(createGLContext(canvasWgl));
+
+            //Set sizes according to window's height and width
+            resizePage(0);
+
+
+            Images.UserDefault = document.getElementById("imageNew");
+
+            //UserImage canvas and context
+            canvasUI = document.getElementById("imageCanvas");
+            canvasUI.width = State.N;
+            canvasUI.height = State.N;
+            contextUI = canvasUI.getContext("2d");
+            userImageDefault(2);
+            canvasUI.style.opacity = 0.4;
+
+
+            //////////Configure WebGL///////////
+
+
+            //UserColour canvas and context
+            canvasUC = document.getElementById("colourCanvas");
+            canvasUC.width = State.N;
+            canvasUC.height = State.N;
+            contextUC = canvasUC.getContext("2d");
+            userImageDefault(3);
+            canvasUC.style.opacity = 0.4;
+
+             //Auxiliary canvas and context(used for the default images if N!=256)
+            canvasAux = document.getElementById("auxCanvas");
+            canvasAux.width = State.N;
+            canvasAux.height = State.N;
+            contextAux = canvasAux.getContext("2d");
+
+            setupBuffers(0);
+            setupShaders();
+
+            wGL.alpha = 0;
+            wGL.beta = 0;
+            wGL.distance = 10.0;
+            wGL.movex = 0;
+            wGL.movey = 0;
+            //Set up the WebGL options
+            gl.clearColor(0.0, 0.0, 0.0, 0.0);
+            gl.enable(gl.DEPTH_TEST);
+            gl.viewport(0, 0, canvasWgl.width, canvasWgl.height);
+            gl.uniform1i(wGL.uniformFlag, 0);
+
+            //Configure the Projection matrix and send it to WebGL
+
+            mat4.perspective(wGL.projectionMatrix, Math.PI / 6.0, canvasWgl.width / canvasWgl.height, 0.3, 1000.0);
+            gl.uniformMatrix4fv(wGL.uniformProjMatrix, false, wGL.projectionMatrix);
+
+            //Configure the ModelView and Normal matrices and send them to WebGL
+            mat4.identity(wGL.modelViewMatrix);
+            mat4.translate(wGL.modelViewMatrix, wGL.modelViewMatrix, vec3.clone([0, 0, -5]));
+            pushModelViewMatrix();
+            gl.uniformMatrix4fv(wGL.uniformMVMatrix, false, wGL.modelViewMatrix);
+            mat3.normalFromMat4(wGL.normalMatrix, wGL.modelViewMatrix);
+            gl.uniformMatrix3fv(wGL.uniformNormalMatrix, false, wGL.normalMatrix);
+            popModelViewMatrix();
+
+            gl.uniform1i(wGL.bumpMap, 0);
+            //Calculate the shape and fill the Position and Normal buffers
+            changeShape(State.figure, 0, 0, 1);
+
+            //Send WebGL the uniforms to control the displacement
+            gl.uniform1f(wGL.uniformDispConstant, State.displac);
+            gl.uniform1f(wGL.uniformDispMax, State.dispMax);
+
+            //Set up the colour of the model
+            changeColour2(State.colour, 1);
+
+            drawFigure();
+        }
+    </script>
+</head>
+
+
+
+
+<body onload="startup();" onresize="resizePage(1);">
+
+    <div id="container">
+
+        <div id="left">
+            <div class="header"><h4>Shapes</h4></div>
+            <input type="checkbox" id="leftVis" class="checkBVis" onclick="visibility(1);">
+
+            <div id="allLeft">
+                <div id="shapes">
+                    <p class="pSubTit text100">Predefined Shapes<p>
+                        <div id="shapesImages">
+                            <img id="plane" class="imS" src="images/plane.jpg" onclick="changeShape(0,id,className,0);" />
+                            <img id="cyl" class="imS" src="images/cylinder.jpg" onclick="changeShape(1,id,className,0);" />
+                            <img id="sph" class="imS" src="images/sphere.jpg" onclick="changeShape(2,id,className,0);" />
+                            <img id="cone" class="imS" src="images/cone.jpg" onclick="changeShape(3,id,className,0);" />
+                            <img id="hyp" class="imS" src="images/hyperb.jpg" onclick="changeShape(4,id,className,0);" />
+                            <img id="tor" class="imS" src="images/torus.jpg" onclick="changeShape(5,id,className,0);" />
+                        </div>
+
+                    <p class="pLeft text90">N = <input type="text" id="Nsize" onchange="changeSize(value);">(NxN mesh)</p>
+                    <p class="pLeft text90">
+                        Rendering mode: <select id="rendering" onchange="changeRendering(selectedIndex);">
+                            <option selected>Surface</option>
+                            <option>Surface + Lines</option>
+                        </select>
+                    </p>
+                    <p class="checkB">
+                        <input type="checkbox" id="ps" onclick="displayBox(id,0);">
+                        <label for="ps" class="text100">Parametric Surfaces</label>
+                    </p>
+                    <p class="checkB">
+                        <input type="checkbox" id="se" onclick="displayBox(id,1);">
+                        <label for="se" class="text100">Superellipsoids</label>
+                    </p>
+                </div>
+
+                <div id="Psurfaces">
+                    <p class="pSubTit text100">Parametric Surfaces<p>
+                    <p>
+                    <p class="PStext">x =</p><select id="xEquation" class="PSeq">
+                        <option value="0">k*sin(u)</option>
+                        <option value="1">k*sin(v)</option>
+                        <option value="2">k*cos(u)</option>
+                        <option value="3">k*cos(v)</option>
+                        <option value="4">k*u*sin(v)</option>
+                        <option value="5">k*u*cos(v)</option>
+                    </select>
+                    <p class="PStext">k =</p><select id="xConstant" class="PSconst">
+                        <option value="0.1">0.1</option>
+                        <option value="0.2">0.2</option>
+                        <option value="0.3" selected>0.3</option>
+                        <option value="0.4">0.4</option>
+                    </select>
+                    
+                    <p>
+                        <p class="PStext">y = </p><select id="yEquation" class="PSeq"></select>
+                        <p class="PStext">k = </p><select id="yConstant" class="PSconst"></select>
+                    </p>
+      
+                    <p class="PStext">z = </p><select id="zEquation" class="PSeq"></select>
+                    <p class="PStext">k = </p><select id="zConstant" class="PSconst"></select>
+
+                    <p>
+                    <div class="UVinput">
+                    <p class="UVtext text90">Umin</p>
+                    <select id="umin" class="UVvalues">
+                        <option value="-3">-3</option>
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+                <div class="UVinput">
+                    <p class="UVtext text90">Umax</p>
+                    <select id="umax" class="UVvalues"></select>
+                </div>
+                <div class="UVinput">
+                    <p class="UVtext text90">Vmin</p>
+                    <select id="vmin" class="UVvalues"></select>
+                </div>
+                <div class="UVinput">
+                    <p class="UVtext text90">Vmax</p>
+                    <select id="vmax" class="UVvalues"></select>
+                </div>
+
+            </div>
+
+            <div id="superellipsoids">
+                <p class="pSubTit text100">Superellipsoids<p>
+                    <img id="supellImage" src="images/supellip.png" />
+                <p class="pLeft text90">n1 = <input type="text" id="n1" class="n12">   n2 = <input type="text" id="n2" class="n12"></p>
+                <button type="button" onclick="readSEbox(0);">Draw</button>
+            </div>
+
+        </div>
+   
+    </div>
+
+    <div id="right">
+        <div class="header"><h4>Images&Colour</h4></div>
+        <input type="checkbox" id="rightVis" class="checkBVis" onclick="visibility(2);">
+
+        <div id="allRight">
+            <div id="defImages">
+                <div>
+                    <p class="pSubTit text100">Default Images<p>
+                        <img id="one" class="imD" src="images/image1.bmp" onclick="changeImage2(1,id,className,0);" />
+                        <img id="two" class="imD" src="images/image2.bmp" onclick="changeImage2(2,id,className,0);" />
+                        <img id="three" class="imD" src="images/image3.bmp" onclick="changeImage2(3,id,className,0);" />
+                        <img id="four" class="imD" src="images/image4.bmp" onclick="changeImage2(4,id,className,0);" />
+                        <img id="five" class="imD" src="images/image5.bmp" onclick="changeImage2(5,id,className,0);" />
+                        <img id="six" class="imD" src="images/image6.bmp" onclick="changeImage2(6,id,className,0);" />
+                        <img id="seven" class="imD" src="images/image7.bmp" onclick="changeImage2(7,id,className,0);" />
+                        <img id="eight" class="imD" src="images/image8.bmp" onclick="changeImage2(8,id,className,0);" />
+                </div>
+                <div id="dispAmount">
+                    <p id="dispText" class="text90">Displacement</p>
+                    <div id="dispButt">
+                        <button class="MoreLess" type="button" onclick="changeDisplacement(0);">+</button>
+                        <button class="MoreLess" type="button" onclick="changeDisplacement(1);">-</button>
+                    </div>
+                </div>
+                <p class="checkB">
+                    <input type="checkbox" id="ci" onclick="displayBox(id,2);">
+                    <label for="ci" class="text100">Customised Image</label>
+                </p>
+                <p class="checkB">
+                    <input type="checkbox" id="cc" onclick="displayBox(id,3);">
+                    <label for="cc" class="text100">Customised Colour</label>
+                </p>
+            </div>
+            
+            <div id="userImageBox">
+                <p class="pSubTit text100">Customised Image<p>
+                    <div><canvas id="imageCanvas" class="imD" onclick="useUserImage(id,className);"></canvas></div>
+                    <div>
+                        <button class="arrowB" type="button" onclick="rotateImage(2,0);"><img class="arrowImage" src="images/arrowL.jpg" /></button>
+                        <button class="arrowB" type="button" onclick="rotateImage(2,1);"><img class="arrowImage" src="images/arrowR.jpg" /></button>
+                    </div>
+                    <input id="inputUserIM" class="inputImage" type="file" onchange="changeUserImage('imageCanvas','imD',0,0);" />
+                    <button class="inputImButton" type="button" onclick="openImageInput(2);">Select Image</button>
+
+            </div>
+
+            <div id="userColourBox">
+                <p class="pSubTit text100">Customised Colour<p>
+                    <div id="textureColour">
+                        <div><canvas id="colourCanvas"></canvas></div>
+                        <div>
+                            <button class="arrowB" type="button" onclick="rotateImage(3,0);"><img class="arrowImage" src="images/arrowL.jpg" /></button>
+                            <button class="arrowB" type="button" onclick="rotateImage(3,1);"><img class="arrowImage" src="images/arrowR.jpg" /></button>
+                        </div>
+                        <input id="inputUserC" class="inputImage" type="file" onchange="changeUserImageColour2(0,0);" />
+                        <button class="inputImButton" type="button" onclick="openImageInput(3);">Select Image</button>
+                    </div>
+                <p class="text90">
+                    Colour: <select id="colourSelect" onchange="changeColour2(selectedIndex,0);">
+                        <option>Red</option>
+                        <option>Green</option>
+                        <option selected>Blue</option>
+                        <option>Texture Mapping</option>
+                    </select>
+                <p class="text90">Pick Colour<input type="color" value="#ff0000" id="myColor" onchange="pickColor(0)"></p>
+                </p>
+
+                <p class="checkB">
+                    <input type="checkbox" id="bm" onclick="bumpMap();">
+                    <label for="bm" class="text100" id="bmtext">Bump Mapping</label>
+                </p>
+            </div>
+                </p>
+            </div>
+        </div>
+    <div id="footer">
+        <button type="button" onclick="displayHelp(1);">Help</button>
+        <button type="button" onclick="save();">Save as Image</button>
+    </div>
+
+    <div id="helpText">
+        <h3>Displacement Mapping application</h3>
+        <p>
+            This application can render different types of shapes, apply displacement to their points
+            and colour them with simple colours or using a texture.
+        </p>
+        <p>
+            <span>Shapes:</span> You can select a predefined shape or create a new one combining parametric equations.
+            The <em>Invert Normals</em> checkbox will change the orientation of the actual normals on the parametric surface.
+            <br>You can also generate a superellipsoid introducing the two required parameters.
+        </p>
+        <p>
+            <span>Mesh size:</span> The surfaces can be rendered with more or less number of points. This can be
+            selected changing the value of N (NxN mesh).
+        </p>
+        <p>
+            <span>Rendering mode:</span> The model can be visualized as a surface (default) but also with points or lines.
+            You can change the mode by clicking on the list.
+        </p>
+        <p>
+            <span>Images-Displacement:</span> The image for the displacement can be picked from the default ones or you can upload a new
+            one	from the <em>Customised Image</em> box. The amount of displacement applied can be increased or decreased.
+            <br>Once the displacement has been activated, it can be switched off clicking on the image that is being used (red border).
+        </p>
+        <p>
+            <span>Colour:</span> This application starts using the blue colour range, but it can be changed on the
+            <em>Customised Colour</em> box. You can choose between red, green or blue, or upload an image to colour the
+            surface in a similar way to the Texture Mapping technique.
+        </p>
+        <p>
+            The model can be rotated moving the mouse or finger(touchscreens) around the page after clicking on it and holding down.
+            <br>It can also be zoomed in or out with the mouse wheel, up and down arrows, or the usual finger gesture.
+        </p>
+        <p>
+            You can convert the model to an image file pressing the <span><em>Save as Image</em></span> button and downloading it as a png file.
+            Unfortunately, it may not be supported by some web browsers.
+        </p>
+        <button type="button" onclick="displayHelp(0);">Close</button>
+    </div>
+
+
+    <canvas id="WebGLCanvas" width= "510" height="379"></canvas>
+
+    <a id="downLink" href="" download="DisplacementMapping.png"></a>
+    <img id="imageNew" class="auxiliary" src="images/imageNew.bmp" />
+    <canvas id="auxCanvas" class="auxiliary"></canvas>
+
+    </div>
+</body>
+
+</html>

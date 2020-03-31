@@ -1,0 +1,375 @@
+
+
+body {
+	background-image: radial-gradient(ellipse at center, #B7BAB7 0%, #485B48 100%);
+	text-align:center;
+}
+
+
+#container {
+	position: relative;
+	min-height: 340px;
+}
+
+
+h4 {
+	margin: 2px;
+}
+
+
+.header {
+	height: 25px;
+	border: 1px solid black;
+	border-bottom: none;
+	background-color: #92CCA6;
+	padding-top:5px;
+	opacity: 0.8;
+}
+
+.checkBVis {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+}
+
+.checkB{
+	text-align: left;
+	font-size: 90%;
+	margin-top:5px;
+	margin-bottom:0px;
+	margin-left: 5px;
+}
+
+.pSubTit {
+	text-decoration: underline;
+	text-align: left;	
+	margin: 0px 0px 0px 3px;
+	padding: 0px;
+}
+
+.text90 {
+	font-size: 90%;
+}
+
+.text100 {
+	font-size: 100%;
+}
+
+
+
+
+
+
+#left {
+	position: absolute;
+	left: 0px;
+	width: 21%;
+	min-width: 115px;
+}
+
+.pLeft {
+	margin: 6px 0px 0px 3px;
+	padding: 0px;
+}
+
+
+
+#shapes {	
+	height: 280px;
+	border: 1px solid black;
+	border-top : none;
+	background-color: #92CCA6;
+	opacity: 0.5;
+}
+
+#shapes:hover {
+	opacity: 0.8;
+}
+
+.imS {
+	width: 20%;
+	max-width: 53px;
+	border-radius: 5px;
+	border: 3px solid black;
+	cursor: pointer;
+}
+
+#plane {
+	border: 3px solid red;
+}
+
+#Nsize {
+	width: 15%;
+}
+
+#rendering {
+	width: 45%;
+}
+
+
+
+#Psurfaces {
+	display: none;
+	height: 265px;
+	border: 1px solid black;
+	background-color: #92CCA6;
+	opacity: 0.5;	
+}
+
+#Psurfaces:hover {
+	opacity: 0.8;
+}
+
+.PStext {
+	display: inline-block;
+	width: 10%;
+	font-size: 80%;	
+	margin: 0px;
+	padding: 0px;
+}
+
+.PSeq {
+	width: 30%;
+	margin: 0px;
+}
+
+.PSconst {
+	width: 20%;
+}
+
+.UVinput {
+	display: inline-block;
+	width: 20%;
+}
+.UVtext {
+	margin:0px;
+}
+.UVvalues {
+	width: 90%;
+}
+
+
+
+#superellipsoids {
+	display: none;
+	height: 220px;
+	border: 1px solid black;
+	background-color: #92CCA6;
+	opacity: 0.5;
+}
+
+#superellipsoids:hover {
+	opacity: 0.8;
+}
+
+#supellImage{
+	max-width: 90%;
+	padding:0;
+}
+
+.n12 {
+	width: 15%;
+	margin-bottom:2px;
+}
+
+
+
+
+
+
+#right {
+	position: absolute;
+	right: 0px;
+	width: 21%;
+	min-width: 115px;
+}
+
+
+#defImages {
+	height: 270px;
+	border: 1px solid black;
+	border-top: none;
+	background-color: #92CCA6;
+	opacity: 0.5;
+}
+
+#defImages:hover {
+	opacity: 0.8;
+}
+
+.imD {
+	width: 20%;
+	max-width: 53px;
+	border-radius: 5px;
+	border: 3px solid black;
+	cursor: pointer;
+}
+
+#dispAmount {
+	height:15%;
+	margin-top: -8px;
+}
+
+#dispText {
+	display:inline-block;
+	font-weight:bold;
+	margin: 0px;
+}
+
+#dispButt {
+	display:inline-block;
+}
+
+.MoreLess {
+	width: 22px;
+	height: 22px;
+	border: 2px solid black;
+	border-radius: 5px;
+	background-color: white;
+	font-family: cursive;
+	cursor: pointer;
+}
+
+
+
+#userImageBox {
+	display: none;
+	height: 170px;
+	border: 1px solid black;
+	background-color: #92CCA6;
+	opacity: 0.5;
+}
+
+#userImageBox:hover {
+	opacity: 0.8;
+}
+
+#imageCanvas {
+	width: 25%;
+	max-width: 63px;
+}
+
+
+
+#userColourBox {
+	display: none;
+	height: 130px;
+	border: 1px solid black;
+	background-color: #92CCA6;
+	opacity: 0.5;
+}
+
+#userColourBox:hover {
+	opacity: 0.8;
+}
+
+#textureColour {
+	display: none;
+}
+
+#colourCanvas {
+	width: 25%;
+	max-width: 63px;
+	border-radius: 5px;
+	border: 1px solid black;
+}
+
+
+.inputImage {
+	display: none;
+}
+
+.inputImButton {
+	width: 40%;
+	border: 1px solid black;
+	background-color: #E0DFE1;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+
+.arrowB {
+	width: 10%;
+	min-width: 20px;	
+	max-width: 25px;
+	border-radius: 5px;
+	border: 2px solid black;
+	background-color: white;
+	cursor: pointer;	
+	padding: 0px;	
+}
+
+.arrowImage {
+	width: 100%;
+	margin :0px;
+}
+
+
+#colourSelect {
+	width: 50%;
+}
+
+
+
+
+
+
+#footer {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	width: 30%;
+	min-width: 180px;
+	height: 30px;	
+	border: 1px solid black;
+	background-color: #92CCA6;
+	z-index: 1;	
+	opacity: 0.5;
+	padding:2px 0px 0px 0px;
+
+}
+
+#footer:hover {
+	opacity: 0.8;
+}
+
+#helpText {
+	display: none;
+	position: absolute;
+	bottom: 40px;
+	right: 0px;
+	
+	width:500px;
+	max-width: 50%;
+	height:400px;
+	max-height: 80%;	
+	
+	border: 1px solid black;
+	background-color: white;
+	overflow-y: scroll;	
+	z-index: 1;
+	
+	text-align: justify;
+	
+	margin: 0px auto;
+	padding: 5px 25px;	
+}
+
+span {
+	text-decoration: underline;
+}
+
+
+
+
+
+#downLink {
+	display: none;
+}
+
+.auxiliary {
+	display: none;
+}
+
+
+
