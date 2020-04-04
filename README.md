@@ -20,6 +20,17 @@ Pending features (**TODO**):
   - The object `wGL` stores the arrays that will fill the different WebGL buffers and its size.
   - The object `Images` holds defaults and images, as well as error states such as the property `userImageOK`.
 - The main function is `startup()` and it initialized things and it instantiates the WebGL context by calling the function [`createGLContext()`](#WebGLcontext-shadersNew.js).
+- Shader
+  - The function `gl.compileShader()` will compile the shader to then be linked.
+  - The function `linkProgram()` creates executable versions of the shaders for the GPU.
+  - The function `useProgram()` installs the program in the GPU if it contains valid code and is linked successfully.
+- `onLoad`: I think the general structure is:
+  - Get the WebGL context
+  - Initialize the shaders
+  - Initialize the buffers
+  - Initialize the lights
+  - Render the scene, which I think is constantly writing to the buffers first and then re-rendering.
+    > I think this because of the `bindBuffer()` and the `bufferData()` functions that bind the vertices buffer, normal buffers and etc to a `gl.ARRAY_BUFFER` object and a `gl.ELEMENT_ARRAY_BUFFER` object.
 
 ## Notes of the JS files
 
@@ -77,6 +88,52 @@ Pending features (**TODO**):
 - This holds an object called LenaJS, and a whole bunch of functions get added to it.
 - It holds functions to apply filters and things using convolution.
 
+### gl-matrix.js
+
+This looks like a library.
+
+### webgl-debug.js
+
+This contains various functions for helping debug WebGL apps.
+
+## Where do buffers come in?
+
+- Shaders are used to control the GPU rather, and it is done through shaders.
+- The application's job is to send data to GPU and all rendering occurs there.
+- `Vertices -> Vertex Processor -> Clipper and primitive assembler -> Rasterizer -> Fragment processor -> Pixels`
+
+### Shader compilation
+
+<p style="text-align:center;"><img src="readme_images/shader_compilation.png" alt="Shader compilation" width="500"/></p>
+
+### Rendering pipeline
+
+The webpage contains these components:
+
+- Vertex Shader
+- Fragment Shader
+- Javascript code (holds the onLoad function)
+  - getGLContext
+  - initProgram
+  - initBuffers
+  - initLights
+  - renderLoop -> drawScene
+- HTML
+
+<p style="text-align:center;"><img src="readme_images/rendering_pipeline.png" alt="Shader compilation" width="500"/></p>
+
+#### Frame buffer
+
+The Frame Buffer is a 2D buffer that contains the fragments after processing by the fragment shader. Once all the fragments have been processed a 2D image is formed and displayed on the screen. The Frame Buffer is the end point of the rendering pipeline.
+
+<p style="text-align:center;"><img src="readme_images/frame_buffer.png" alt="Shader compilation" width="300"/></p>
+
+#### Attributes, uniforms and varyings
+
+These are three types used when programming shaders.
+
+<p style="text-align:center;"><img src="readme_images/types_shaders.png" alt="Shader compilation" width="400"/></p>
+
 # Usage
 
 Currently, open the `.html` in the browser.
@@ -86,3 +143,9 @@ Alternatively, use **TODO: Something that spins up a quick server. Perhaps a nod
 # Maintenance
 
 This project is not planned to be supported past the submission on the 06 Apr 2020.
+
+## Additional resources
+
+MDN web docs by Mozilla was invaluable during the development of the project.
+
+- [WebGL best practices](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices)
