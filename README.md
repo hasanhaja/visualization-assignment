@@ -11,9 +11,34 @@ Pending features (**TODO**):
 
 - Features required by the assignment
 
-# Uncertainties with the base project
+# Contents
 
-## Overall structure
+- [Uncertainties with the base project](#uncertainties-with-the-base-project)
+  - [Overall structure](#overall-structure)
+  - [Notes of the JS files](#notes-of-the-js-files)
+    - [WebGLcontext-shadersNew.js](#WebGLcontext-shadersNew.js)
+    - [WebGLbuffersNew.js](#WebGLbuffersNew.js)
+    - [WebGLsurfacesNew.js](#WebGLsurfacesNew.js)
+    - [WebGLdrawingFunctionNew.js](#WebGLdrawingFunctionNew.js)
+    - [WebGLeventHandlersNew.js](#WebGLeventHandlersNew.js)
+    - [WebGLchangingFunctionsNew.js](#WebGLchangingFunctionsNew.js)
+    - [GUIhelpingFunctionsNew.js](#GUIhelpingFunctionsNew.js)
+    - [WebGLObjectNew.js](#WebGLObjectNew.js)
+    - [lena.js](#lena.js)
+    - [gl-matrix.js](#gl-matrix.js)
+    - [webgl-debug.js](#webgl-debug.js)
+  - [Where do buffers come in?](#where-do-buffers-come-in)
+    - [Shader compilation](#shader-compilation)
+    - [Rendering pipeline](#rendering-pipeline)
+      - [Frame buffer](#frame-buffer)
+      - [Attributes, uniforms and varyings](#attributes-uniforms-and-varyings)
+- [Usage](#Usage)
+- [Maintenance](#Maintenance)
+  - [Additional resources](#additional-resources)
+
+# Uncertainties with the base project <a name="uncertainties-with-the-base-project"></a>
+
+## Overall structure <a name="overall-structure"></a>
 
 - The starting point of the app is in the `.html` file is the script is contained within it under `<script type="text/javascript">`.
 - It contains objects that hold arrays for buffers, state of the model, event handling, displacement imags, current surface and other configuration related things.
@@ -32,7 +57,7 @@ Pending features (**TODO**):
   - Render the scene, which I think is constantly writing to the buffers first and then re-rendering.
     > I think this because of the `bindBuffer()` and the `bufferData()` functions that bind the vertices buffer, normal buffers and etc to a `gl.ARRAY_BUFFER` object and a `gl.ELEMENT_ARRAY_BUFFER` object.
 
-## Notes of the JS files
+## Notes of the JS files <a name="notes-of-the-js-files"></a>
 
 ### WebGLcontext-shadersNew.js
 
@@ -96,17 +121,17 @@ This looks like a library.
 
 This contains various functions for helping debug WebGL apps.
 
-## Where do buffers come in?
+## Where do buffers come in? <a name="where-do-buffers-come-in"></a>
 
 - Shaders are used to control the GPU rather, and it is done through shaders.
 - The application's job is to send data to GPU and all rendering occurs there.
 - `Vertices -> Vertex Processor -> Clipper and primitive assembler -> Rasterizer -> Fragment processor -> Pixels`
 
-### Shader compilation
+### Shader compilation <a name="shader-compilation"></a>
 
 <p style="text-align:center;"><img src="readme_images/shader_compilation.png" alt="Shader compilation" width="500"/></p>
 
-### Rendering pipeline
+### Rendering pipeline <a name="rendering-pipeline"></a>
 
 The webpage contains these components:
 
@@ -122,13 +147,13 @@ The webpage contains these components:
 
 <p style="text-align:center;"><img src="readme_images/rendering_pipeline.png" alt="Shader compilation" width="500"/></p>
 
-#### Frame buffer
+#### Frame buffer <a name="frame-buffer"></a>
 
 The Frame Buffer is a 2D buffer that contains the fragments after processing by the fragment shader. Once all the fragments have been processed a 2D image is formed and displayed on the screen. The Frame Buffer is the end point of the rendering pipeline.
 
 <p style="text-align:center;"><img src="readme_images/frame_buffer.png" alt="Shader compilation" width="300"/></p>
 
-#### Attributes, uniforms and varyings
+#### Attributes, uniforms and varyings <a name="attributes-uniforms-and-varyings"></a>
 
 These are three types used when programming shaders.
 
@@ -144,7 +169,7 @@ Alternatively, use **TODO: Something that spins up a quick server. Perhaps a nod
 
 This project is not planned to be supported past the submission on the 06 Apr 2020.
 
-## Additional resources
+## Additional resources <a name="additional-resources"></a>
 
 MDN web docs by Mozilla was invaluable during the development of the project.
 
