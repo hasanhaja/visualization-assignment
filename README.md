@@ -16,17 +16,17 @@ Pending features (**TODO**):
 - [Uncertainties with the base project](#uncertainties-with-the-base-project)
   - [Overall structure](#overall-structure)
   - [Notes of the JS files](#notes-of-the-js-files)
-    - [WebGLcontext-shadersNew.js](#WebGLcontext-shadersNew.js)
-    - [WebGLbuffersNew.js](#WebGLbuffersNew.js)
-    - [WebGLsurfacesNew.js](#WebGLsurfacesNew.js)
-    - [WebGLdrawingFunctionNew.js](#WebGLdrawingFunctionNew.js)
-    - [WebGLeventHandlersNew.js](#WebGLeventHandlersNew.js)
-    - [WebGLchangingFunctionsNew.js](#WebGLchangingFunctionsNew.js)
-    - [GUIhelpingFunctionsNew.js](#GUIhelpingFunctionsNew.js)
-    - [WebGLObjectNew.js](#WebGLObjectNew.js)
-    - [lena.js](#lena.js)
-    - [gl-matrix.js](#gl-matrix.js)
-    - [webgl-debug.js](#webgl-debug.js)
+    - [WebGLcontext-shadersNew.js](#WebGLcontext-shadersNew)
+    - [WebGLbuffersNew.js](#WebGLbuffersNew)
+    - [WebGLsurfacesNew.js](#WebGLsurfacesNew)
+    - [WebGLdrawingFunctionNew.js](#WebGLdrawingFunctionNew)
+    - [WebGLeventHandlersNew.js](#WebGLeventHandlersNew)
+    - [WebGLchangingFunctionsNew.js](#WebGLchangingFunctionsNew)
+    - [GUIhelpingFunctionsNew.js](#GUIhelpingFunctionsNew)
+    - [WebGLObjectNew.js](#WebGLObjectNew)
+    - [lena.js](#lena)
+    - [gl-matrix.js](#gl-matrix)
+    - [webgl-debug.js](#webgl-debug)
   - [Where do buffers come in?](#where-do-buffers-come-in)
     - [Shader compilation](#shader-compilation)
     - [Rendering pipeline](#rendering-pipeline)
@@ -59,18 +59,18 @@ Pending features (**TODO**):
 
 ## Notes of the JS files <a name="notes-of-the-js-files"></a>
 
-### WebGLcontext-shadersNew.js
+### WebGLcontext-shadersNew.js <a name="WebGLcontext-shadersNew"></a>
 
 - The function `createGLContext(canvas)` has an empty catch block. Probably not good.
 - `setupShaders()` configures the WebGL shaders
   - It also stores the positions of the WebGL attributes
   - Currently, it looks like the color attribute is commented out (`line 80`).
 
-### WebGLbuffersNew.js
+### WebGLbuffersNew.js <a name="WebGLbuffersNew"></a>
 
 - `setupBuffers(mode)` creates and calculates WebGL buffers. _What are these used for though?_
 
-### WebGLsurfacesNew.js
+### WebGLsurfacesNew.js <a name="WebGLsurfacesNew"></a>
 
 - Holds the functions to create parametric surfaces or superellipsoids.
 - I think this will be the function triggered when the corresponding button is pressed.
@@ -78,28 +78,28 @@ Pending features (**TODO**):
 - `defineSurface2()` is blank but it is supposed to be used to calculate the position and normal buffers for the specific parameteric surfaces.
 - _How is `defineSurface3()` or `defineSurface4()` or `defineSurface5()` or `defineSurface6()` different to the previous one?_
 
-### WebGLdrawingFunctionNew.js
+### WebGLdrawingFunctionNew.js <a name="WebGLdrawingFunctionNew"></a>
 
 - `drawFigure()` draws the WebGL model.
 - It checks the rendering mode and type of surface and draws the correct elements.
 - _Where is this `State` object coming from?_
 - It has one property called rendering. _Is this from WebGL or defined globally elsewhere?_ **It might be a WebGL context thing.**
 
-### WebGLeventHandlersNew.js
+### WebGLeventHandlersNew.js <a name="WebGLeventHandlersNew"></a>
 
 - Just a bunch of event listeners (i.e. key presses, or context-sensitivity), with model view navigation functions (i.e. zoom).
 
-### WebGLchangingFunctionsNew.js
+### WebGLchangingFunctionsNew.js <a name="WebGLchangingFunctionsNew"></a>
 
 - This is responsible for changes to base shapes. It changes it by generating a new shape and rendering that.
   - _What is the base shape? Is this where the first shape rendered on the screen updates?_
 - It holds a switch case logic calling the functions `defineSurfaceX()` from the [`WebGLsurfacesNew.js`](#WebGLsurfacesNew.js) file.
 
-### GUIhelpingFunctionsNew.js
+### GUIhelpingFunctionsNew.js <a name="GUIhelpingFunctionsNew"></a>
 
 - This holds the functions for inputing an image or downloading the webgl model to an image.
 
-### WebGLObjectNew.js
+### WebGLObjectNew.js <a name="WebGLObjectNew"></a>
 
 - This holds the base class called `Surf`, along with Plane, Sphere, Cone, Catenoid, Cylinder and Torus that extend it.
 - This base class has functions to compute `U` and `V` and compute other points, normals, derivatives, face info, and indices.
@@ -107,17 +107,17 @@ Pending features (**TODO**):
 - It also holds the class `GLSData` that accepts a `Surf`, computes all the points, normals and etc, and can be used to compute things like the overall vertex info, normal info and etc, that is stored in a respective property in the class.
   - _Why are these functions important? Where are they used?_
 
-### lena.js
+### lena.js <a name="lena"></a>
 
 - _What is the point of this?_
 - This holds an object called LenaJS, and a whole bunch of functions get added to it.
 - It holds functions to apply filters and things using convolution.
 
-### gl-matrix.js
+### gl-matrix.js <a name="gl-matrix"></a>
 
 This looks like a library.
 
-### webgl-debug.js
+### webgl-debug.js <a name="webgl-debug"></a>
 
 This contains various functions for helping debug WebGL apps.
 
