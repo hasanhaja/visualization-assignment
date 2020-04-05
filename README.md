@@ -94,6 +94,8 @@ Pending features (**TODO**):
 - This is responsible for changes to base shapes. It changes it by generating a new shape and rendering that.
   - _What is the base shape? Is this where the first shape rendered on the screen updates?_
 - It holds a switch case logic calling the functions `defineSurfaceX()` from the [`WebGLsurfacesNew.js`](#WebGLsurfacesNew.js) file.
+- `changeImage2()`
+  - _What is image number 9 represent? Is it the user input image?_
 
 ### GUIhelpingFunctionsNew.js <a name="GUIhelpingFunctionsNew"></a>
 

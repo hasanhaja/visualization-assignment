@@ -139,6 +139,127 @@ class Surf {
   }
 }
 
+/**
+ * @param {number} id
+ * @member {vec3} func should be a 3D vec with the
+ * 0th index holding the f(u, v)
+ * 1st index holding the df/du
+ * 2nd index holding the df/dv
+ * without the k value.
+ */
+class FunctionSelector {
+  constructor(id) {
+    this.method = this.select(id);
+  }
+
+  /**
+   * @returns An array of all the function sets. Each elements contains [f(u,v), dfdu, dfdv].
+   */
+  getFunctions() {
+    /**
+     * k*sin(u)
+     * k*sin(v)
+     * k*cos(u)
+     * k*cos(v)
+     * k*u*sin(v)
+     * k*u*cos(v)
+     */
+
+    const f0 = (u, v) => Math.sin(u);
+    const f1 = (u, v) => Math.sin(v);
+    const f2 = (u, v) => Math.cos(u);
+    const f3 = (u, v) => Math.cos(v);
+    const f4 = (u, v) => u * Math.sin(v);
+    const f5 = (u, v) => u * Math.cos(v);
+
+    const df0du = (u, v) => Math.cos(u);
+    const df1du = (u, v) => 0.0;
+    const df2du = (u, v) => -1.0 * Math.sin(u);
+    const df3du = (u, v) => 0.0;
+    const df4du = (u, v) => Math.sin(v);
+    const df5du = (u, v) => Math.cos(v);
+
+    const df0dv = (u, v) => 0.0;
+    const df1dv = (u, v) => Math.cos(v);
+    const df2dv = (u, v) => 0.0;
+    const df3dv = (u, v) => -1.0 * Math.sin(v);
+    const df4dv = (u, v) => u * Math.cos(v);
+    const df5dv = (u, v) => -1.0 * u * Math.sin(v);
+
+    const funcs0 = [f0, df0du, df0dv];
+    const funcs1 = [f1, df1du, df1dv];
+    const funcs2 = [f2, df2du, df2dv];
+    const funcs3 = [f3, df3du, df3dv];
+    const funcs4 = [f4, df4du, df4dv];
+    const funcs5 = [f5, df5du, df5dv];
+
+    const functions = [funcs0, funcs1, funcs2, funcs3, funcs4, funcs5];
+
+    return functions;
+  }
+
+  /**
+   * Todo: Check if the array indexing is out of bounds.
+   * @param {number} id
+   */
+  select(id) {
+    return this.getFunctions()[id];
+  }
+}
+
+/**
+ * This the surface class that can construct a parametric surface based on the selected function.
+ */
+class ParametricSurface extends Surf {
+  constructor(u1, u2, v1, v2, xK, yK, zK, xID, yID, zID, n) {
+    super(u1, u2, v1, v2, n);
+
+    this.xK = xK;
+    this.yK = yK;
+    this.zK = zK;
+
+    this.x = new FunctionSelector(xID).method;
+    this.y = new FunctionSelector(yID).method;
+    this.z = new FunctionSelector(zID).method;
+  }
+
+  /**
+   * Multiply by k
+   * @param {*} u
+   * @param {*} v
+   */
+  Eval(u, v) {
+    var vec = vec3.create();
+    vec[0] = this.xK * this.x[0](u, v);
+    vec[1] = this.yK * this.y[0](u, v);
+    vec[2] = this.zK * this.z[0](u, v);
+    return vec;
+  }
+
+  DeriveU(u, v) {
+    var vec = vec3.create();
+    vec[0] = this.xK * this.x[1](u, v);
+    vec[1] = this.yK * this.y[1](u, v);
+    vec[2] = this.zK * this.z[1](u, v);
+    return vec;
+  }
+
+  DeriveV(u, v) {
+    var vec = vec3.create();
+    vec[0] = this.xK * this.x[2](u, v);
+    vec[1] = this.yK * this.y[2](u, v);
+    vec[2] = this.zK * this.z[2](u, v);
+    return vec;
+  }
+
+  Normal(u, v) {
+    var vec = vec3.create();
+    vec3.cross(vec, this.DeriveU(u, v), this.DeriveV(u, v));
+    vec3.normalize(vec, vec);
+    return vec;
+  }
+}
+
 class Plane extends Surf {
   constructor(u1, u2, v1, v2, n) {
     super(u1, u2, v1, v2, n);
@@ -354,16 +475,18 @@ class Torus extends Surf {
 
   Eval(u, v) {
     const vec = vec3.create();
-    vec[0] = (this.r1 + this.r2 * Math.sin(v)) * Math.sin(u);
-    vec[1] = (this.r1 + this.r2 * Math.sin(v)) * Math.cos(u);
+    const temp = this.r1 + this.r2 * Math.sin(v);
+    vec[0] = temp * Math.sin(u);
+    vec[1] = temp * Math.cos(u);
     vec[0] = this.r2 * Math.cos(v);
     return vec;
   }
 
   DeriveU(u, v) {
     const vec = vec3.create();
-    vec[0] = (this.r1 + this.r2 * Math.sin(v)) * Math.cos(u);
-    vec[1] = -1.0 * (this.r1 + this.r2 * Math.sin(v)) * Math.sin(u);
+    const temp = this.r1 + this.r2 * Math.sin(v);
+    vec[0] = temp * Math.cos(u);
+    vec[1] = -1.0 * temp * Math.sin(u);
     vec[0] = 0.0;
     return vec;
   }
@@ -373,6 +496,103 @@ class Torus extends Surf {
     vec[0] = this.r2 * Math.cos(v) * Math.sin(u);
     vec[1] = this.r2 * Math.cos(v) * Math.cos(u);
     vec[0] = -1.0 * this.r2 * Math.sin(v);
+    return vec;
+  }
+
+  Normal(u, v) {
+    var vec = vec3.create();
+    vec3.cross(vec, this.DeriveU(u, v), this.DeriveV(u, v));
+    vec3.normalize(vec, vec);
+    return vec;
+  }
+}
+
+class TwistedTorus extends Surf {
+  constructor(u1, u2, v1, v2, n) {
+    super(u1, u2, v1, v2, n);
+  }
+
+  Eval(u, v) {
+    const vec = vec3.create();
+    const temp = 3.0 + Math.sin(v) + Math.cos(u);
+    vec[0] = temp * Math.cos(2.0 * v);
+    vec[1] = temp * Math.sin(2.0 * v);
+    vec[0] = Math.sin(u) + 2.0 * Math.cos(v);
+    return vec;
+  }
+
+  DeriveU(u, v) {
+    const vec = vec3.create();
+    const temp = Math.sin(v) - Math.sin(u);
+    vec[0] = temp * Math.cos(2.0 * v);
+    vec[1] = temp * Math.sin(2.0 * v);
+    vec[0] = Math.cos(u);
+    return vec;
+  }
+
+  DeriveV(u, v) {
+    const vec = vec3.create();
+    const sin2v2 = 2.0 * Math.sin(2.0 * v);
+    const cos2v2 = 2.0 * Math.cos(2.0 * v);
+    vec[0] =
+      -3.0 * sin2v2 +
+      Math.cos(u) * (Math.cos(2.0 * v) - sin2v2) -
+      Math.cos(u) * sin2v2;
+    vec[1] =
+      3.0 * cos2v2 +
+      0.5 * sin2v2 * Math.cos(v) +
+      Math.sin(v) * cos2v2 +
+      Math.cos(u) * cos2v2;
+    vec[0] = 2.0 * Math.sin(v);
+    return vec;
+  }
+
+  Normal(u, v) {
+    var vec = vec3.create();
+    vec3.cross(vec, this.DeriveU(u, v), this.DeriveV(u, v));
+    vec3.normalize(vec, vec);
+    return vec;
+  }
+}
+
+class RomanSurface extends Surf {
+  constructor(u1, u2, v1, v2, n) {
+    super(u1, u2, v1, v2, n);
+  }
+
+  Eval(u, v) {
+    const vec = vec3.create();
+    const sin2v = Math.sin(2.0 * v);
+    const cos2v = Math.cos(2.0 * v);
+    const cos2u = Math.cos(2.0 * u);
+    const sin2u = Math.cos(2.0 * u);
+    vec[0] = sin2u * (Math.cos(v) * Math.cos(v));
+    vec[1] = Math.sin(u) * sin2v;
+    vec[0] = Math.cos(u) * sin2v;
+    return vec;
+  }
+
+  DeriveU(u, v) {
+    const vec = vec3.create();
+    const sin2v = Math.sin(2.0 * v);
+    const cos2v = Math.cos(2.0 * v);
+    const cos2u = Math.cos(2.0 * u);
+    const sin2u = Math.cos(2.0 * u);
+    vec[0] = 2.0 * (Math.cos(v) * Math.cos(v)) * cos2u;
+    vec[1] = Math.cos(u) * sin2v;
+    vec[0] = -1.0 * Math.sin(u) * sin2v;
+    return vec;
+  }
+
+  DeriveV(u, v) {
+    const vec = vec3.create();
+    const sin2v = Math.sin(2.0 * v);
+    const cos2v = Math.cos(2.0 * v);
+    const cos2u = Math.cos(2.0 * u);
+    const sin2u = Math.cos(2.0 * u);
+    vec[0] = -2.0 * cos2u * sin2v;
+    vec[1] = 2.0 * Math.sin(u) * cos2v;
+    vec[0] = 2.0 * Math.cos(u) * cos2v;
     return vec;
   }
 

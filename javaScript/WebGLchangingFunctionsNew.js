@@ -31,20 +31,32 @@ function changeShape(n, id, cl, mode) {
       break;
 
     case 3:
-      console.log("Surface 4");
       defineSurface4(0, 10, 0, 2 * Math.PI);
 
       break;
 
     case 4:
-      console.log("Surface 5");
       defineSurface5(0, 2 * Math.PI, -6, 6, 4);
 
       break;
 
     case 5:
-      console.log("Surface 6");
       defineSurface6(0, 2 * Math.PI, 0, 2 * Math.PI, 20, 10);
+
+      break;
+
+    case 6:
+      defineSurface7(0, 2 * Math.PI, 0, 2 * Math.PI);
+
+      break;
+
+    case 7:
+      defineSurface8(
+        -0.5 * Math.PI,
+        0.5 * Math.PI,
+        -0.5 * Math.PI,
+        0.5 * Math.PI
+      );
 
       break;
   }
@@ -79,6 +91,14 @@ function readPSbox(mode) {
   var vm = parseInt(document.getElementById("vmin").value);
 
   var vx = parseInt(document.getElementById("vmax").value);
+
+  const debug = [xS, yS, zS, k1, k2, k3, um, ux, vm, vx];
+
+  for (let i = 0; i < debug.length; i++) {
+    console.log(debug[i]);
+  }
+
+  defineParametricSurface(um, ux, vm, vx, k1, k2, k3, xS, yS, zS);
 
   if (mode == 0) {
     // to do, call changeShape appropriately
@@ -913,6 +933,18 @@ function changeImage2(num, id, cl, mode) {
 
       case 8:
         DrawAndExtract("eight", 0, 1);
+        break;
+      case 9:
+        DrawAndExtract("nine", 0, 1);
+        break;
+      case 10:
+        DrawAndExtract("ten", 0, 1);
+        break;
+      case 11:
+        DrawAndExtract("eleven", 0, 1);
+        break;
+      case 12:
+        DrawAndExtract("twelve", 0, 1);
         break;
     }
 

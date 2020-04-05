@@ -389,6 +389,8 @@
                             <img id="cone" class="imS" src="images/cone.jpg" onclick="changeShape(3,id,className,0);" />
                             <img id="hyp" class="imS" src="images/hyperb.jpg" onclick="changeShape(4,id,className,0);" />
                             <img id="tor" class="imS" src="images/torus.jpg" onclick="changeShape(5,id,className,0);" />
+                            <img id="twi" class="imS" src="images/twisted.png" onclick="changeShape(6,id,className,0);" />
+                            <img id="rom" class="imS" src="images/romans.jpg" onclick="changeShape(7,id,className,0);" />
                         </div>
 
                     <p class="pLeft text90">N = <input type="text" id="Nsize" onchange="changeSize(value);">(NxN mesh)</p>
@@ -427,12 +429,36 @@
                     </select>
                     
                     <p>
-                        <p class="PStext">y = </p><select id="yEquation" class="PSeq"></select>
-                        <p class="PStext">k = </p><select id="yConstant" class="PSconst"></select>
+                        <p class="PStext">y = </p><select id="yEquation" class="PSeq">
+                            <option value="0">k*sin(u)</option>
+                            <option value="1">k*sin(v)</option>
+                            <option value="2">k*cos(u)</option>
+                            <option value="3">k*cos(v)</option>
+                            <option value="4">k*u*sin(v)</option>
+                            <option value="5">k*u*cos(v)</option>
+                        </select>
+                        <p class="PStext">k = </p><select id="yConstant" class="PSconst">
+                            <option value="0.1">0.1</option>
+                            <option value="0.2">0.2</option>
+                            <option value="0.3" selected>0.3</option>
+                            <option value="0.4">0.4</option>
+                        </select>
                     </p>
       
-                    <p class="PStext">z = </p><select id="zEquation" class="PSeq"></select>
-                    <p class="PStext">k = </p><select id="zConstant" class="PSconst"></select>
+                    <p class="PStext">z = </p><select id="zEquation" class="PSeq">
+                            <option value="0">k*sin(u)</option>
+                            <option value="1">k*sin(v)</option>
+                            <option value="2">k*cos(u)</option>
+                            <option value="3">k*cos(v)</option>
+                            <option value="4">k*u*sin(v)</option>
+                            <option value="5">k*u*cos(v)</option>
+                    </select>
+                    <p class="PStext">k = </p><select id="zConstant" class="PSconst">
+                        <option value="0.1">0.1</option>
+                        <option value="0.2">0.2</option>
+                        <option value="0.3" selected>0.3</option>
+                        <option value="0.4">0.4</option>
+                    </select>
 
                     <p>
                     <div class="UVinput">
@@ -449,17 +475,41 @@
                 </div>
                 <div class="UVinput">
                     <p class="UVtext text90">Umax</p>
-                    <select id="umax" class="UVvalues"></select>
+                    <select id="umax" class="UVvalues">
+                        <option value="-3">-3</option>
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                 </div>
                 <div class="UVinput">
                     <p class="UVtext text90">Vmin</p>
-                    <select id="vmin" class="UVvalues"></select>
+                    <select id="vmin" class="UVvalues">
+                        <option value="-3">-3</option>
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                 </div>
                 <div class="UVinput">
                     <p class="UVtext text90">Vmax</p>
-                    <select id="vmax" class="UVvalues"></select>
+                    <select id="vmax" class="UVvalues">
+                        <option value="-3">-3</option>
+                        <option value="-2">-2</option>
+                        <option value="-1">-1</option>
+                        <option value="0" selected>0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                 </div>
-
+                <button type="button" onclick="readPSbox(0);">Draw</button>
             </div>
 
             <div id="superellipsoids">
