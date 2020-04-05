@@ -81,27 +81,21 @@ function readPSbox(mode) {
   var xS = parseInt(document.getElementById("xEquation").value);
   var yS = parseInt(document.getElementById("yEquation").value);
   var zS = parseInt(document.getElementById("zEquation").value);
+
   var k1 = parseFloat(document.getElementById("xConstant").value);
   var k2 = parseFloat(document.getElementById("yConstant").value);
   var k3 = parseFloat(document.getElementById("zConstant").value);
-  var um = parseInt(document.getElementById("umin").value);
 
-  var ux = parseInt(document.getElementById("umax").value);
-
-  var vm = parseInt(document.getElementById("vmin").value);
-
-  var vx = parseInt(document.getElementById("vmax").value);
-
-  const debug = [xS, yS, zS, k1, k2, k3, um, ux, vm, vx];
-
-  for (let i = 0; i < debug.length; i++) {
-    console.log(debug[i]);
-  }
+  var um = parseInt(document.getElementById("umin").value) * Math.PI;
+  var ux = parseInt(document.getElementById("umax").value) * Math.PI;
+  var vm = parseInt(document.getElementById("vmin").value) * Math.PI;
+  var vx = parseInt(document.getElementById("vmax").value) * Math.PI;
 
   defineParametricSurface(um, ux, vm, vx, k1, k2, k3, xS, yS, zS);
 
   if (mode == 0) {
     // to do, call changeShape appropriately
+    drawFigure();
   }
 }
 
@@ -125,8 +119,17 @@ function readSEbox(mode) {
     } else {
       n1SE = n1;
       n2SE = n2;
-      superellipsoid(n1, n2);
+      defineSuperellipsoidSurface(
+        -0.5 * Math.PI,
+        0.5 * Math.PI,
+        -1.0 * Math.PI,
+        Math.PI,
+        20.0,
+        n1,
+        n2
+      );
       if (mode == 0) {
+        drawFigure();
       } // to do call changeShape appropriately
     }
   } else {

@@ -208,6 +208,77 @@ class FunctionSelector {
 }
 
 /**
+ * Todo: Handle error for when n1 and n2 ranges are out of bound.
+ */
+class SuperellipsoidSurface extends Surf {
+  constructor(u1, u2, v1, v2, k, n1, n2, n) {
+    super(u1, u2, v1, v2, n);
+    this.k = k;
+    this.n1 = n1;
+    this.n2 = n2;
+  }
+
+  /**
+   * Multiply by k
+   * @param {*} u
+   * @param {*} v
+   */
+  Eval(u, v) {
+    var vec = vec3.create();
+    vec[0] = this.k * Math.pow(Math.cos(u), n1) * Math.pow(Math.cos(v), n2);
+    vec[1] = this.k * Math.pow(Math.cos(u), n1) * Math.pow(Math.sin(v), n2);
+    vec[2] = this.k * Math.pow(Math.sin(u), n1);
+    return vec;
+  }
+
+  DeriveU(u, v) {
+    var vec = vec3.create();
+    vec[0] =
+      -1.0 *
+      this.k *
+      Math.pow(Math.cos(v), n2) *
+      n1 *
+      Math.pow(Math.cos(u), n1 - 1) *
+      Math.sin(u);
+    vec[1] =
+      -1.0 *
+      this.k *
+      Math.pow(Math.sin(v), n2) *
+      n1 *
+      Math.pow(Math.cos(u), n1 - 1) *
+      Math.sin(u);
+    vec[2] = this.k * n1 * Math.pow(Math.sin(u), n1 - 1) * Math.cos(u);
+    return vec;
+  }
+
+  DeriveV(u, v) {
+    var vec = vec3.create();
+    vec[0] =
+      -1.0 *
+      this.k *
+      Math.pow(Math.cos(u), n1) *
+      n2 *
+      Math.pow(Math.cos(v), n2 - 1) *
+      Math.sin(v);
+    vec[1] =
+      this.k *
+      Math.pow(Math.cos(u), n1) *
+      n2 *
+      Math.pow(Math.sin(v), n2 - 1) *
+      Math.cos(v);
+    vec[2] = 0.0;
+    return vec;
+  }
+
+  Normal(u, v) {
+    var vec = vec3.create();
+    vec3.cross(vec, this.DeriveU(u, v), this.DeriveV(u, v));
+    vec3.normalize(vec, vec);
+    return vec;
+  }
+}
+
+/**
  * This the surface class that can construct a parametric surface based on the selected function.
  */
 class ParametricSurface extends Surf {
