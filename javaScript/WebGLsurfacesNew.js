@@ -304,7 +304,6 @@ function defineSurface5(um, ux, vm, vx, c) {
  * @param {number} r1 outer radius
  * @param {number} r2 inner radius
  */
-
 function defineSurface6(um, ux, vm, vx, r1, r2) {
   const N = State.N;
 
@@ -480,9 +479,9 @@ function defineSurface8(um, ux, vm, vx) {
  * @param {number} ux maximum value of parameter u
  * @param {number} vm minimum value of parameter v
  * @param {number} vx maximum value of parameter v
- * @param {number} xID
- * @param {number} yID
- * @param {number} zID
+ * @param {number} xID this is the id of the x function.
+ * @param {number} yID this is the id of the y function.
+ * @param {number} zID this is the id of the z function.
  */
 function defineParametricSurface(um, ux, vm, vx, xK, yK, zK, xID, yID, zID) {
   const N = State.N;
@@ -553,6 +552,9 @@ function defineParametricSurface(um, ux, vm, vx, xK, yK, zK, xID, yID, zID) {
  * @param {number} ux maximum value of parameter u
  * @param {number} vm minimum value of parameter v
  * @param {number} vx maximum value of parameter v
+ * @param {number} factor is the k value and the default value is 0.4
+ * @param {number} n1 is the factor by which the u component scales
+ * @param {number} n2 is the factor by which the v component scales
  */
 function defineSuperellipsoidSurface(um, ux, vm, vx, factor, n1, n2) {
   const N = State.N;

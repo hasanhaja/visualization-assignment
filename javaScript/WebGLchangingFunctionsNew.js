@@ -124,7 +124,7 @@ function readSEbox(mode) {
         0.5 * Math.PI,
         -1.0 * Math.PI,
         Math.PI,
-        20.0,
+        0.4, // this value is the recommended value in the assignment brief
         n1,
         n2
       );

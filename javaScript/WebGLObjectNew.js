@@ -140,8 +140,9 @@ class Surf {
 }
 
 /**
- * @param {number} id
- * @member {vec3} func should be a 3D vec with the
+ * This class is used in the ParametericSurface class to select the appropriate function.
+ * @param {number} id is used to select the corresponding function. This is ordered in the same way as the order on the UI.
+ * @member {vec3} method should be a 3D vec with the
  * 0th index holding the f(u, v)
  * 1st index holding the df/du
  * 2nd index holding the df/dv
@@ -153,18 +154,18 @@ class FunctionSelector {
   }
 
   /**
+   * This is just a Supplier function. It generates data in the form of functions and returns them.
+   * The following functions are implemented with their respective partial derivatives, in the same order as the UI declaration.
+   * - k*sin(u)
+   * - k*sin(v)
+   * - k*cos(u)
+   * - k*cos(v)
+   * - k*u*sin(v)
+   * - k*u*cos(v)
    * @returns An array of all the function sets. Each elements contains [f(u,v), dfdu, dfdv].
    */
   getFunctions() {
-    /**
-     * k*sin(u)
-     * k*sin(v)
-     * k*cos(u)
-     * k*cos(v)
-     * k*u*sin(v)
-     * k*u*cos(v)
-     */
-
+    // Parametric functions
     const f0 = (u, v) => Math.sin(u);
     const f1 = (u, v) => Math.sin(v);
     const f2 = (u, v) => Math.cos(u);
@@ -172,6 +173,7 @@ class FunctionSelector {
     const f4 = (u, v) => u * Math.sin(v);
     const f5 = (u, v) => u * Math.cos(v);
 
+    // Partial derivatives with respect to u of parametric functions
     const df0du = (u, v) => Math.cos(u);
     const df1du = (u, v) => 0.0;
     const df2du = (u, v) => -1.0 * Math.sin(u);
@@ -179,6 +181,7 @@ class FunctionSelector {
     const df4du = (u, v) => Math.sin(v);
     const df5du = (u, v) => Math.cos(v);
 
+    // Partial derivatives with respect to v of parametric functions
     const df0dv = (u, v) => 0.0;
     const df1dv = (u, v) => Math.cos(v);
     const df2dv = (u, v) => 0.0;
@@ -186,6 +189,7 @@ class FunctionSelector {
     const df4dv = (u, v) => u * Math.cos(v);
     const df5dv = (u, v) => -1.0 * u * Math.sin(v);
 
+    // Grouping of the parametric and partial derivative functions that correspond to each other.
     const funcs0 = [f0, df0du, df0dv];
     const funcs1 = [f1, df1du, df1dv];
     const funcs2 = [f2, df2du, df2dv];
@@ -208,26 +212,24 @@ class FunctionSelector {
 }
 
 /**
- * Todo: Handle error for when n1 and n2 ranges are out of bound.
+ * This the surface class that can construct a superellopsoid surface based on the selected n1 and n2 values.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ * @param {number} fac is representative of k, which is defaulted to 0.4.
+ * Todo: It doesn't render correctly, I don't think. The math checks out, but the surface is not rendered.
  */
 class SuperellipsoidSurface extends Surf {
-  constructor(u1, u2, v1, v2, k, n1, n2, n) {
+  constructor(u1, u2, v1, v2, fac, n1, n2, n) {
     super(u1, u2, v1, v2, n);
-    this.k = k;
+    this.fac = fac;
     this.n1 = n1;
     this.n2 = n2;
   }
 
-  /**
-   * Multiply by k
-   * @param {*} u
-   * @param {*} v
-   */
   Eval(u, v) {
     var vec = vec3.create();
-    vec[0] = this.k * Math.pow(Math.cos(u), n1) * Math.pow(Math.cos(v), n2);
-    vec[1] = this.k * Math.pow(Math.cos(u), n1) * Math.pow(Math.sin(v), n2);
-    vec[2] = this.k * Math.pow(Math.sin(u), n1);
+    vec[0] = this.fac * Math.pow(Math.cos(u), n1) * Math.pow(Math.cos(v), n2);
+    vec[1] = this.fac * Math.pow(Math.cos(u), n1) * Math.pow(Math.sin(v), n2);
+    vec[2] = this.fac * Math.pow(Math.sin(u), n1);
     return vec;
   }
 
@@ -235,19 +237,19 @@ class SuperellipsoidSurface extends Surf {
     var vec = vec3.create();
     vec[0] =
       -1.0 *
-      this.k *
+      this.fac *
       Math.pow(Math.cos(v), n2) *
       n1 *
       Math.pow(Math.cos(u), n1 - 1) *
       Math.sin(u);
     vec[1] =
       -1.0 *
-      this.k *
+      this.fac *
       Math.pow(Math.sin(v), n2) *
       n1 *
       Math.pow(Math.cos(u), n1 - 1) *
       Math.sin(u);
-    vec[2] = this.k * n1 * Math.pow(Math.sin(u), n1 - 1) * Math.cos(u);
+    vec[2] = this.fac * n1 * Math.pow(Math.sin(u), n1 - 1) * Math.cos(u);
     return vec;
   }
 
@@ -255,13 +257,13 @@ class SuperellipsoidSurface extends Surf {
     var vec = vec3.create();
     vec[0] =
       -1.0 *
-      this.k *
+      this.fac *
       Math.pow(Math.cos(u), n1) *
       n2 *
       Math.pow(Math.cos(v), n2 - 1) *
       Math.sin(v);
     vec[1] =
-      this.k *
+      this.fac *
       Math.pow(Math.cos(u), n1) *
       n2 *
       Math.pow(Math.sin(v), n2 - 1) *
@@ -280,6 +282,14 @@ class SuperellipsoidSurface extends Surf {
 
 /**
  * This the surface class that can construct a parametric surface based on the selected function.
+ * @member {number} xK is the k const corresponding to the x function.
+ * @member {number} yK is the k const corresponding to the y function.
+ * @member {number} zK is the k const corresponding to the z function.
+ * @member {vec3} this.x the set of functions for x are retrieved from FunctionSelector object.
+ * @member {vec3} this.y the set of functions for y are retrieved from FunctionSelector object.
+ * @member {vec3} this.z the set of functions for z are retrieved from FunctionSelector object.
+ *
+ * The property method in the FunctionSelector object holds all the respective functions and partial derivatives for the corresponding id (). See FunctionSelector.
  */
 class ParametricSurface extends Surf {
   constructor(u1, u2, v1, v2, xK, yK, zK, xID, yID, zID, n) {
@@ -294,11 +304,6 @@ class ParametricSurface extends Surf {
     this.z = new FunctionSelector(zID).method;
   }
 
-  /**
-   * Multiply by k
-   * @param {*} u
-   * @param {*} v
-   */
   Eval(u, v) {
     var vec = vec3.create();
     vec[0] = this.xK * this.x[0](u, v);
@@ -331,6 +336,10 @@ class ParametricSurface extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Plane shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ */
 class Plane extends Surf {
   constructor(u1, u2, v1, v2, n) {
     super(u1, u2, v1, v2, n);
@@ -368,6 +377,10 @@ class Plane extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Sphere shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ */
 class Sphere extends Surf {
   constructor(u1, u2, v1, v2, r, n) {
     super(u1, u2, v1, v2, n);
@@ -406,6 +419,11 @@ class Sphere extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Cone shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ * Note: Additional geometry since the parametric functions are for a general infinite, double-napped cone [[source](https://mathworld.wolfram.com/Cone.html)].
+ */
 class Cone extends Surf {
   constructor(u1, u2, v1, v2, n) {
     super(u1, u2, v1, v2, n);
@@ -443,6 +461,10 @@ class Cone extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Catenoid shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ */
 class Catenoid extends Surf {
   constructor(u1, u2, v1, v2, c, n) {
     super(u1, u2, v1, v2, n);
@@ -481,6 +503,10 @@ class Catenoid extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Cylinder shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ */
 class Cylinder extends Surf {
   constructor(u1, u2, v1, v2, r, n) {
     super(u1, u2, v1, v2, n);
@@ -537,6 +563,10 @@ class Cylinder extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Torus shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ */
 class Torus extends Surf {
   constructor(u1, u2, v1, v2, r1, r2, n) {
     super(u1, u2, v1, v2, n);
@@ -549,7 +579,7 @@ class Torus extends Surf {
     const temp = this.r1 + this.r2 * Math.sin(v);
     vec[0] = temp * Math.sin(u);
     vec[1] = temp * Math.cos(u);
-    vec[0] = this.r2 * Math.cos(v);
+    vec[2] = this.r2 * Math.cos(v);
     return vec;
   }
 
@@ -558,7 +588,7 @@ class Torus extends Surf {
     const temp = this.r1 + this.r2 * Math.sin(v);
     vec[0] = temp * Math.cos(u);
     vec[1] = -1.0 * temp * Math.sin(u);
-    vec[0] = 0.0;
+    vec[2] = 0.0;
     return vec;
   }
 
@@ -566,7 +596,7 @@ class Torus extends Surf {
     const vec = vec3.create();
     vec[0] = this.r2 * Math.cos(v) * Math.sin(u);
     vec[1] = this.r2 * Math.cos(v) * Math.cos(u);
-    vec[0] = -1.0 * this.r2 * Math.sin(v);
+    vec[2] = -1.0 * this.r2 * Math.sin(v);
     return vec;
   }
 
@@ -578,6 +608,10 @@ class Torus extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the TwistedTorus shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ */
 class TwistedTorus extends Surf {
   constructor(u1, u2, v1, v2, n) {
     super(u1, u2, v1, v2, n);
@@ -588,16 +622,15 @@ class TwistedTorus extends Surf {
     const temp = 3.0 + Math.sin(v) + Math.cos(u);
     vec[0] = temp * Math.cos(2.0 * v);
     vec[1] = temp * Math.sin(2.0 * v);
-    vec[0] = Math.sin(u) + 2.0 * Math.cos(v);
+    vec[2] = Math.sin(u) + 2.0 * Math.cos(v);
     return vec;
   }
 
   DeriveU(u, v) {
     const vec = vec3.create();
-    const temp = Math.sin(v) - Math.sin(u);
-    vec[0] = temp * Math.cos(2.0 * v);
-    vec[1] = temp * Math.sin(2.0 * v);
-    vec[0] = Math.cos(u);
+    vec[0] = -1.0 * Math.cos(2.0 * v) * Math.sin(u);
+    vec[1] = -1.0 * Math.sin(2.0 * v) * Math.sin(u);
+    vec[2] = Math.cos(u);
     return vec;
   }
 
@@ -605,16 +638,10 @@ class TwistedTorus extends Surf {
     const vec = vec3.create();
     const sin2v2 = 2.0 * Math.sin(2.0 * v);
     const cos2v2 = 2.0 * Math.cos(2.0 * v);
-    vec[0] =
-      -3.0 * sin2v2 +
-      Math.cos(u) * (Math.cos(2.0 * v) - sin2v2) -
-      Math.cos(u) * sin2v2;
-    vec[1] =
-      3.0 * cos2v2 +
-      0.5 * sin2v2 * Math.cos(v) +
-      Math.sin(v) * cos2v2 +
-      Math.cos(u) * cos2v2;
-    vec[0] = 2.0 * Math.sin(v);
+    const temp = 3.0 + Math.sin(v) + Math.cos(u);
+    vec[0] = -1.0 * sin2v2 * temp + Math.cos(2.0 * v) * Math.cos(v);
+    vec[1] = cos2v2 * temp + Math.sin(2.0 * v) * Math.cos(v);
+    vec[2] = -2.0 * Math.sin(v);
     return vec;
   }
 
@@ -626,6 +653,11 @@ class TwistedTorus extends Surf {
   }
 }
 
+/**
+ * The function was implemented using the parametric functions provided for the Roman's surface shape.
+ * The partial derivatives were calculated on paper and input into the appropriate functions.
+ * Todo: It doesn't render correctly, I don't think. The math checks out, but the surface is rendered wrong.
+ */
 class RomanSurface extends Surf {
   constructor(u1, u2, v1, v2, n) {
     super(u1, u2, v1, v2, n);
@@ -636,10 +668,10 @@ class RomanSurface extends Surf {
     const sin2v = Math.sin(2.0 * v);
     const cos2v = Math.cos(2.0 * v);
     const cos2u = Math.cos(2.0 * u);
-    const sin2u = Math.cos(2.0 * u);
+    const sin2u = Math.sin(2.0 * u);
     vec[0] = sin2u * (Math.cos(v) * Math.cos(v));
     vec[1] = Math.sin(u) * sin2v;
-    vec[0] = Math.cos(u) * sin2v;
+    vec[2] = Math.cos(u) * sin2v;
     return vec;
   }
 
@@ -648,10 +680,10 @@ class RomanSurface extends Surf {
     const sin2v = Math.sin(2.0 * v);
     const cos2v = Math.cos(2.0 * v);
     const cos2u = Math.cos(2.0 * u);
-    const sin2u = Math.cos(2.0 * u);
+    const sin2u = Math.sin(2.0 * u);
     vec[0] = 2.0 * (Math.cos(v) * Math.cos(v)) * cos2u;
     vec[1] = Math.cos(u) * sin2v;
-    vec[0] = -1.0 * Math.sin(u) * sin2v;
+    vec[2] = -1.0 * Math.sin(u) * sin2v;
     return vec;
   }
 
@@ -660,10 +692,10 @@ class RomanSurface extends Surf {
     const sin2v = Math.sin(2.0 * v);
     const cos2v = Math.cos(2.0 * v);
     const cos2u = Math.cos(2.0 * u);
-    const sin2u = Math.cos(2.0 * u);
-    vec[0] = -2.0 * cos2u * sin2v;
+    const sin2u = Math.sin(2.0 * u);
+    vec[0] = -2.0 * sin2u * Math.cos(v) * Math.sin(v);
     vec[1] = 2.0 * Math.sin(u) * cos2v;
-    vec[0] = 2.0 * Math.cos(u) * cos2v;
+    vec[2] = 2.0 * Math.cos(u) * cos2v;
     return vec;
   }
 

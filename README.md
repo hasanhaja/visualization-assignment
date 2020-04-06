@@ -7,10 +7,6 @@ The current features of the application is:
 - Display port to display a surface mesh
 - Save image as
 
-Pending features (**TODO**):
-
-- Features required by the assignment
-
 # Contents
 
 - [Uncertainties with the base project](#uncertainties-with-the-base-project)
@@ -165,7 +161,7 @@ These are three types used when programming shaders.
 
 Currently, open the `.html` in the browser.
 
-Alternatively, use **TODO: Something that spins up a quick server. Perhaps a nodejs thing.**
+Alternatively, use the live server plugin available on VSCode.
 
 # Maintenance
 
