@@ -2,7 +2,7 @@
 
 //// Function to calculate the position and normal buffers for a specific parametric surface
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Plane.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -55,11 +55,9 @@ function defineSurface1(um, ux, vm, vx) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for the parametric surface: Cylinder
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for the parametric surface: Cylinder.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -114,11 +112,9 @@ function defineSurface2(um, ux, vm, vx, r) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Sphere
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Sphere.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -173,11 +169,9 @@ function defineSurface3(um, ux, vm, vx, r) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Cone
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Cone.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -231,11 +225,9 @@ function defineSurface4(um, ux, vm, vx) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Catenoid
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Catenoid.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -290,11 +282,9 @@ function defineSurface5(um, ux, vm, vx, c) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Torus
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Torus.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -350,11 +340,9 @@ function defineSurface6(um, ux, vm, vx, r1, r2) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Twisted torus
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Twisted torus.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -409,11 +397,9 @@ function defineSurface7(um, ux, vm, vx) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Roman's surface
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Roman's surface.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -468,11 +454,9 @@ function defineSurface8(um, ux, vm, vx) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Parametric surface
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Parametric surface.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
@@ -541,11 +525,9 @@ function defineParametricSurface(um, ux, vm, vx, xK, yK, zK, xID, yID, zID) {
   gl.enableVertexAttribArray(wGL.vertexNormalAttribute);
 }
 
-//////////Functions to create parametric surfaces or superellipsoids
-
 //// Function to calculate the position and normal buffers for a specific parametric surface: Superellipsoid surface
 /**
- * Generation of parametric surfaces
+ * Function to calculate the position and normal buffers for a specific parametric surface: Superellipsoid surface.
  *
  * Generates the positions and normal vectors of a parametric surface and assigns the values to the corresponding WebGL buffers.
  * @param {number} um minimum value of parameter u
